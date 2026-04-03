@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Хроника · Новый Орлеан</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-label">Новый Орлеан · 2013–2019</div>
+  <h1 class="header-title"><span>Хроника</span> Персонажей</h1>
+  <div class="header-sub">Архив · Биографии · Связи · События</div>
+</header>
+
+<!-- ГЛАВНЫЕ ПЕРСОНАЖИ -->
+<div class="section-label">Главные персонажи</div>
+<div class="chars-grid">
+  <div class="char-card" onclick="openBio('elio')">
+    <div class="char-card-img-wrap"><div class="char-card-img-placeholder">аватарка · Элио</div></div>
+    <div class="char-card-overlay"></div>
+    <div class="char-card-hint">→</div>
+    <div class="char-card-bar">
+      <div class="char-card-accent" style="background:#7AB3E0;"></div>
+      <div class="char-card-name" style="color:#7AB3E0;">Элио Лаксфорд</div>
+      <div class="char-card-role">Владелец LUX · Посредник · ~44</div>
+    </div>
+  </div>
+  <div class="char-card" onclick="openBio('chelsea')">
+    <div class="char-card-img-wrap"><div class="char-card-img-placeholder">аватарка · Челси</div></div>
+    <div class="char-card-overlay"></div>
+    <div class="char-card-hint">→</div>
+    <div class="char-card-bar">
+      <div class="char-card-accent" style="background:#E07AB3;"></div>
+      <div class="char-card-name" style="color:#E07AB3;">Челси Хилл</div>
+      <div class="char-card-role">Актриса · Педагог · 25</div>
+    </div>
+  </div>
+  <div class="char-card" onclick="openBio('miles')">
+    <div class="char-card-img-wrap"><div class="char-card-img-placeholder">аватарка · Майлз</div></div>
+    <div class="char-card-overlay"></div>
+    <div class="char-card-hint">→</div>
+    <div class="char-card-bar">
+      <div class="char-card-accent" style="background:#7AE0AB;"></div>
+      <div class="char-card-name" style="color:#7AE0AB;">Майлз Милошевич</div>
+      <div class="char-card-role">Нейрохирург · 36</div>
+    </div>
+  </div>
+  <div class="char-card" onclick="openBio('selin')">
+    <div class="char-card-img-wrap"><div class="char-card-img-placeholder">аватарка · Селин</div></div>
+    <div class="char-card-overlay"></div>
+    <div class="char-card-hint">→</div>
+    <div class="char-card-bar">
+      <div class="char-card-accent" style="background:#B37AE0;"></div>
+      <div class="char-card-name" style="color:#B37AE0;">Селин Деверо</div>
+      <div class="char-card-role">Директор рехаба · Кардиналы · 33</div>
+    </div>
+  </div>
+</div>
+
+<!-- BIO MODAL -->
+<div class="bio-modal" id="bio-modal">
+  <div class="bio-modal-backdrop" onclick="closeBio()"></div>
+  <div class="bio-modal-panel">
+    <button class="bio-modal-close" onclick="closeBio()">✕</button>
+    <div class="bio-modal-img-col" id="bio-img-col"></div>
+    <div class="bio-modal-content">
+      <div class="bio-modal-accent" id="bio-accent"></div>
+      <div class="bio-modal-name" id="bio-name"></div>
+      <div class="bio-modal-role" id="bio-role"></div>
+      <div class="bio-stats" id="bio-stats"></div>
+      <div class="bio-section-title">Биография</div>
+      <div id="bio-text"></div>
+      <div id="bio-secret"></div>
+    </div>
+  </div>
+</div>
+
+<!-- КАРТА СВЯЗЕЙ -->
+<div class="section-label">Карта связей</div>
+<div class="connections-wrap" id="connections-wrap">
+  <svg id="connections-svg" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#C8A96E" opacity="0.8"/>
+      </marker>
+    </defs>
+  </svg>
+
+  <div class="connections-grid">
+    <div class="conn-block conn-elio" id="conn-elio" onmouseenter="showConnections('elio')" onmouseleave="hideConnections()" onclick="openCharChronicle('elio')">
+      <div class="conn-avatar-wrap" style="border-color:#7AB3E0;"><div class="conn-avatar-placeholder">Э</div></div>
+      <div><div class="conn-name" style="color:#7AB3E0;">Элио Лаксфорд</div><div class="conn-role">Владелец LUX</div></div>
+    </div>
+    <div class="conn-block conn-chelsea" id="conn-chelsea" onmouseenter="showConnections('chelsea')" onmouseleave="hideConnections()" onclick="openCharChronicle('chelsea')">
+      <div class="conn-avatar-wrap" style="border-color:#E07AB3;"><div class="conn-avatar-placeholder">Ч</div></div>
+      <div><div class="conn-name" style="color:#E07AB3;">Челси Хилл</div><div class="conn-role">Актриса</div></div>
+    </div>
+    <div class="conn-block conn-miles" id="conn-miles" onmouseenter="showConnections('miles')" onmouseleave="hideConnections()" onclick="openCharChronicle('miles')">
+      <div class="conn-avatar-wrap" style="border-color:#7AE0AB;"><div class="conn-avatar-placeholder">М</div></div>
+      <div><div class="conn-name" style="color:#7AE0AB;">Майлз Милошевич</div><div class="conn-role">Нейрохирург</div></div>
+    </div>
+    <div class="conn-block conn-selin" id="conn-selin" onmouseenter="showConnections('selin')" onmouseleave="hideConnections()" onclick="openCharChronicle('selin')">
+      <div class="conn-avatar-wrap" style="border-color:#B37AE0;"><div class="conn-avatar-placeholder">С</div></div>
+      <div><div class="conn-name" style="color:#B37AE0;">Селин Деверо</div><div class="conn-role">Директор рехаба</div></div>
+    </div>
+  </div>
+
+  <div class="small-spacer"></div>
+  <div style="font-size:10px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;">Второстепенные</div>
+  <div class="side-chars-grid">
+    <div class="side-block" id="conn-linda" onmouseenter="showConnections('linda')" onmouseleave="hideConnections()" onclick="openCharChronicle('linda')">
+      <div class="side-avatar-wrap"><div class="side-avatar-placeholder">Л</div></div>
+      <div class="side-name">Линда Мартин</div>
+    </div>
+    <div class="side-block" id="conn-day" onmouseenter="showConnections('day')" onmouseleave="hideConnections()" onclick="openCharChronicle('day')">
+      <div class="side-avatar-wrap"><div class="side-avatar-placeholder">Д</div></div>
+      <div class="side-name">Дэй Бэнкс</div>
+    </div>
+    <div class="side-block" id="conn-bert" onmouseenter="showConnections('bert')" onmouseleave="hideConnections()" onclick="openCharChronicle('bert')">
+      <div class="side-avatar-wrap"><div class="side-avatar-placeholder">Б</div></div>
+      <div class="side-name">Берт Милтон</div>
+    </div>
+    <div class="side-block" id="conn-hugo" onmouseenter="showConnections('hugo')" onmouseleave="hideConnections()" onclick="openCharChronicle('hugo')">
+      <div class="side-avatar-wrap"><div class="side-avatar-placeholder">Х</div></div>
+      <div class="side-name">Хьюго Йорк</div>
+    </div>
+    <div class="side-block" id="conn-mildi" onmouseenter="showConnections('mildi')" onmouseleave="hideConnections()" onclick="openCharChronicle('mildi')">
+      <div class="side-avatar-wrap"><div class="side-avatar-placeholder">М</div></div>
+      <div class="side-name">Милдред Смит</div>
+    </div>
+    <div class="side-block" id="conn-piper" onmouseenter="showConnections('piper')" onmouseleave="hideConnections()" onclick="openCharChronicle('piper')">
+      <div class="side-avatar-wrap"><div class="side-avatar-placeholder">П</div></div>
+      <div class="side-name">Piper Brandewin</div>
+    </div>
+  </div>
+</div>
+
+<!-- CHAR CHRONICLE MODAL -->
+<div class="chronicle-modal" id="char-chronicle-modal">
+  <div class="modal-backdrop-shared" onclick="closeCharChronicle()"></div>
+  <div class="chronicle-modal-panel">
+    <button class="bio-modal-close" onclick="closeCharChronicle()">✕</button>
+    <div id="char-chronicle-content"></div>
+  </div>
+</div>
+
+<!-- ИДЕИ -->
+<div class="section-label">Идеи для игр</div>
+<div class="spoiler-wrap" id="ideas-spoilers">
+  <div class="spoiler-item">
+    <div class="spoiler-header" onclick="toggleSpoiler(this)">
+      <span>Идея: Челси &amp; Элио — Разговор на чистоту</span>
+      <span class="spoiler-arrow">▼</span>
+    </div>
+    <div class="spoiler-body">
+      <div class="spoiler-chars">Участники: Челси · Элио</div>
+      <div class="spoiler-text">После долгой паузы — встреча наедине. Элио наконец открывает нечто глубокое из своего прошлого. Для Челси это первый момент, когда она видит его настоящего, без маски. Игра строится на медленном снятии слоёв — ни слова об общине напрямую, только через образы, обходные пути. К финалу оба оказываются уязвимее, чем планировали.</div>
+    </div>
+  </div>
+  <div class="spoiler-item">
+    <div class="spoiler-header" onclick="toggleSpoiler(this)">
+      <span>Идея: Майлз &amp; Селин — Фиктивный ужин</span>
+      <span class="spoiler-arrow">▼</span>
+    </div>
+    <div class="spoiler-body">
+      <div class="spoiler-chars">Участники: Майлз · Селин</div>
+      <div class="spoiler-text">Официальный семейный ужин с родителями Майлза. Виктор Милошевич приезжает с неожиданной проверкой. Майлз и Селин вынуждены разыгрывать счастливую пару — со всеми мелкими деталями, прикосновениями, общими историями, которых нет. Для Селин это рабочий инструмент. Для Майлза — неожиданно болезненно.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ДОБАВИТЬ -->
+<div class="section-label">Добавить</div>
+<div class="action-section" style="display:flex;gap:14px;flex-wrap:wrap;">
+  <button class="btn-add" onclick="openAddChronicleForm()">
+    <span class="btn-add-icon">+</span>
+    Добавить новую хронологию
+  </button>
+  <button class="btn-add" onclick="openAddIdeaForm()">
+    <span class="btn-add-icon">✦</span>
+    Идеи игр
+  </button>
+</div>
+
+<div class="page-spacer"></div>
+
+<!-- ФОРМА: ДОБАВИТЬ ХРОНОЛОГИЮ -->
+<div class="form-modal" id="add-chronicle-modal">
+  <div class="modal-backdrop-shared" onclick="closeAddChronicleForm()"></div>
+  <div class="form-panel">
+    <button class="bio-modal-close" onclick="closeAddChronicleForm()">✕</button>
+    <div class="form-title">Новая запись хронологии</div>
+    <div class="form-group">
+      <label class="form-label">Персонаж</label>
+      <select class="form-input form-select" id="fc-char">
+        <option value="">— выберите персонажа —</option>
+        <option value="elio">Элио Лаксфорд</option>
+        <option value="chelsea">Челси Хилл</option>
+        <option value="miles">Майлз Милошевич</option>
+        <option value="selin">Селин Деверо</option>
+        <option value="linda">Линда Мартин</option>
+        <option value="day">Дэй Бэнкс</option>
+        <option value="bert">Берт Милтон</option>
+        <option value="hugo">Хьюго Йорк</option>
+        <option value="mildi">Милдред Смит</option>
+        <option value="piper">Piper Brandewin</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Название игры</label>
+        <input class="form-input" id="fc-title" type="text" placeholder="Первое знакомство…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Дата</label>
+        <input class="form-input" id="fc-date" type="text" placeholder="29.07.2019">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Ссылка на игру</label>
+      <input class="form-input" id="fc-link" type="text" placeholder="https://…">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Описание (кратко)</label>
+      <textarea class="form-textarea" id="fc-desc" placeholder="Что произошло в этой игре…"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Участники (через · )</label>
+      <input class="form-input" id="fc-participants" type="text" placeholder="Элио · Челси">
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeAddChronicleForm()">Отмена</button>
+      <button class="btn-submit" onclick="submitChronicle()">Добавить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ФОРМА: ДОБАВИТЬ ИДЕЮ -->
+<div class="form-modal" id="add-idea-modal">
+  <div class="modal-backdrop-shared" onclick="closeAddIdeaForm()"></div>
+  <div class="form-panel">
+    <button class="bio-modal-close" onclick="closeAddIdeaForm()">✕</button>
+    <div class="form-title">Идея для игры</div>
+    <div class="form-group">
+      <label class="form-label">Участники</label>
+      <input class="form-input" id="fi-participants" type="text" placeholder="Майлз · Селин">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Название / заголовок</label>
+      <input class="form-input" id="fi-title" type="text" placeholder="Фиктивный ужин с родителями…">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Сюжет</label>
+      <textarea class="form-textarea" id="fi-plot" style="min-height:160px;" placeholder="Опишите идею, завязку, атмосферу…"></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeAddIdeaForm()">Отмена</button>
+      <button class="btn-submit" onclick="submitIdea()">Добавить</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
