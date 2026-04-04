@@ -1,10 +1,11 @@
 // ─────────────────────────────────────────
-// JSONBIN CONFIG
+// GIST CONFIG
 // ─────────────────────────────────────────
-const JSONBIN_ID  = '69b4bf17c3097a1dd523132d';
-const JSONBIN_KEY = '$2a$10$0GPaIJrOvPUYtRsyx6N7zeJ9j6zm7nNDDv8gaiAKESR6cQ8PAWZOG';
-const JSONBIN_URL = 'https://api.jsonbin.io/v3/b/' + JSONBIN_ID;
-
+const GIST_ID    = 'c33bff3357d1eb0633e00d7c30f5eb92';
+const GIST_FILE  = 'chronicle_db.json';
+const GIST_URL   = 'https://api.github.com/gists/' + GIST_ID;
+function getToken() { return localStorage.getItem('gist_token') || ''; }
+function setToken(t) { localStorage.setItem('gist_token', t); console.log('Токен сохранён'); }
 // ─────────────────────────────────────────
 // INJECT ADMIN STYLES
 // ─────────────────────────────────────────
@@ -126,6 +127,9 @@ const JSONBIN_URL = 'https://api.jsonbin.io/v3/b/' + JSONBIN_ID;
   document.head.appendChild(s);
 })();
 
+// ─────────────────────────────────────────
+// SAVE STATUS
+// ─────────────────────────────────────────
 function showSaveStatus(state) {
   let el = document.getElementById('save-status');
   if (!el) {
@@ -269,26 +273,32 @@ let saving = false;
 let currentChronicleId = null;
 
 // ─────────────────────────────────────────
-// JSONBIN
+// GIST LOAD / SAVE
 // ─────────────────────────────────────────
 async function loadFromBin() {
   try {
-    const r = await fetch(JSONBIN_URL + '/latest', {
-      headers: { 'X-Master-Key': JSONBIN_KEY }
+    const r = await fetch(GIST_URL, {
+      headers: {
+        'Authorization': 'token ' + getToken(),
+        'Accept': 'application/vnd.github.v3+json'
+      }
     });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const j = await r.json();
-    if (!j.record || j.record.__empty) return false;
-    const snap = JSON.stringify(j.record);
+    const content = j.files[GIST_FILE]?.content;
+    if (!content) return false;
+    const parsed = JSON.parse(content);
+    if (!parsed.mainChars) return false;
+    const snap = JSON.stringify(parsed);
     if (snap === lastSnapshot) return false;
     lastSnapshot = snap;
-    db = j.record;
+    db = parsed;
     if (!db.mainChars) db.mainChars = [];
     if (!db.sideChars) db.sideChars = [];
     if (!db.ideas)     db.ideas = [];
     return true;
   } catch(e) {
-    console.warn('JSONbin load error:', e);
+    console.warn('Gist load error:', e);
     try {
       const local = localStorage.getItem('chronicle_db');
       if (local) {
@@ -308,26 +318,28 @@ async function saveToBin() {
   if (saving) return;
   saving = true;
   showSaveStatus('saving');
-  const body = JSON.stringify(db);
+  const body = JSON.stringify(db, null, 2);
 
-  // Всегда сохраняем локально — это резервная копия
   try { localStorage.setItem('chronicle_db', body); } catch(e) {}
 
   try {
-    const r = await fetch(JSONBIN_URL, {
-      method: 'PUT',
+    const r = await fetch(GIST_URL, {
+      method: 'PATCH',
       headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_KEY
+        'Authorization': 'token ' + getToken(),
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
       },
-      body
+      body: JSON.stringify({
+        files: { [GIST_FILE]: { content: body } }
+      })
     });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     lastSnapshot = body;
     showSaveStatus('ok');
   } catch(e) {
-    console.warn('JSONbin save error:', e);
-    showSaveStatus('local'); // сохранено только локально
+    console.warn('Gist save error:', e);
+    showSaveStatus('local');
   } finally {
     saving = false;
   }
@@ -338,7 +350,7 @@ async function poll() {
     const changed = await loadFromBin();
     if (changed) renderAll();
   }
-  setTimeout(poll, 3500);
+  setTimeout(poll, 5000);
 }
 
 // ─────────────────────────────────────────
@@ -394,7 +406,6 @@ function renderMainChars() {
       <button class="edit-overlay-btn" title="Редактировать">✏️</button>
       <button class="delete-overlay-btn" title="Удалить">✕</button>
     `;
-    // Click on card = open bio (not in admin mode)
     card.addEventListener('click', e => {
       if (e.target.classList.contains('edit-overlay-btn') || e.target.classList.contains('delete-overlay-btn')) return;
       if (!adminMode) openBio(ch.id);
@@ -404,7 +415,6 @@ function renderMainChars() {
     grid.appendChild(card);
   });
 
-  // Add card (shown only in admin mode via CSS)
   const addCard = document.createElement('div');
   addCard.className = 'add-char-card';
   addCard.innerHTML = `<div class="add-char-card-icon">+</div><div class="add-char-card-label">Добавить персонажа</div>`;
@@ -440,7 +450,6 @@ function renderSideChars() {
     grid.appendChild(div);
   });
 
-  // Add button
   const addDiv = document.createElement('div');
   addDiv.className = 'side-add-btn side-block';
   addDiv.innerHTML = `
@@ -451,7 +460,6 @@ function renderSideChars() {
   addDiv.addEventListener('click', () => openAddCharForm('side'));
   grid.appendChild(addDiv);
 
-  // sync main conn-blocks text
   (db.mainChars||[]).forEach(ch => {
     const block = document.getElementById('conn-' + ch.id);
     if (!block) return;
@@ -517,7 +525,6 @@ function openBio(id) {
   document.getElementById('bio-secret').innerHTML = ch.secret
     ? `<div class="bio-secret"><div class="bio-secret-label">⚠ Тайна</div><div class="bio-secret-text">${esc(ch.secret)}</div></div>` : '';
 
-  // Edit button in modal
   let editBtn = document.getElementById('bio-modal-edit-btn');
   if (!editBtn) {
     editBtn = document.createElement('button');
@@ -967,7 +974,6 @@ function closeIdeaModal() {
   if (m) { m.classList.remove('open'); document.body.style.overflow = ''; }
 }
 
-// alias for HTML onclick
 function submitIdea() { openAddIdeaForm(); }
 
 // ─────────────────────────────────────────
@@ -1051,28 +1057,34 @@ function createAdminBadge() {
 // INIT
 // ─────────────────────────────────────────
 async function init() {
-  const loaded = await loadFromBin();
-  if (!loaded || !db.mainChars || db.mainChars.length === 0) {
-    // Пробуем localStorage ещё раз напрямую
-    try {
-      const local = localStorage.getItem('chronicle_db');
-      if (local) {
-        const parsed = JSON.parse(local);
-        if (parsed.mainChars && parsed.mainChars.length > 0) {
-          db = parsed;
-        }
+  // Сначала грузим из localStorage — мгновенно
+  try {
+    const local = localStorage.getItem('chronicle_db');
+    if (local) {
+      const parsed = JSON.parse(local);
+      if (parsed.mainChars && parsed.mainChars.length > 0) {
+        db = parsed;
+        if (!db.sideChars) db.sideChars = [];
+        if (!db.ideas) db.ideas = [];
       }
-    } catch(e) {}
-
-    // Если всё равно пусто — дефолты
-    if (!db.mainChars || db.mainChars.length === 0) {
-      db.mainChars = DEFAULT_MAIN_CHARS;
-      db.sideChars = DEFAULT_SIDE_CHARS;
-      db.ideas     = DEFAULT_IDEAS;
-      await saveToBin();
     }
+  } catch(e) {}
+
+  // Если localStorage пустой — дефолты
+  if (!db.mainChars || db.mainChars.length === 0) {
+    db.mainChars = DEFAULT_MAIN_CHARS;
+    db.sideChars = DEFAULT_SIDE_CHARS;
+    db.ideas     = DEFAULT_IDEAS;
   }
+
+  // Рендерим сразу не ждя Gist
   createAdminBadge();
   renderAll();
+
+  // Gist грузим в фоне — если данные новее, перерендерим
+  loadFromBin().then(changed => { if (changed) renderAll(); });
+
   poll();
 }
+
+init();
