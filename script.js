@@ -1043,7 +1043,7 @@ function createAdminBadge() {
 // ─────────────────────────────────────────
 async function init() {
   createAdminBadge();
-  const changed = await loadFromBin();
+  await loadFromBin();
   if (!db.mainChars || db.mainChars.length === 0) {
     db.mainChars = DEFAULT_MAIN_CHARS;
     db.sideChars = DEFAULT_SIDE_CHARS;
@@ -1053,3 +1053,5 @@ async function init() {
   renderAll();
   poll();
 }
+
+init();
