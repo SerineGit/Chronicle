@@ -289,7 +289,7 @@ function toggleAdmin() {
   document.body.classList.toggle('admin-mode', adminMode);
   const badge = document.getElementById('admin-badge');
   if (badge) {
-    badge.textContent = adminMode ? '✏️ Режим редактирования ВКЛЮЧЁН (нажми чтобы выйти)' : '✏️ Режим редактирования';
+    badge.textContent = adminMode ? '✏️  ВКЛ (нажми чтобы выйти)' : '✏️ ВЫКЛ (нажми чтобы войти)';
     badge.classList.toggle('off', !adminMode);
   }
 }
