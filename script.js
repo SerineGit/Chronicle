@@ -278,10 +278,8 @@ let currentChronicleId = null;
 async function loadFromBin() {
   try {
     const r = await fetch(GIST_URL, {
-  headers: {
-    'Accept': 'application/vnd.github.v3+json'
-  }
-});
+      headers: { 'Accept': 'application/vnd.github.v3+json' }
+    });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const j = await r.json();
     const content = j.files[GIST_FILE]?.content;
@@ -289,8 +287,7 @@ async function loadFromBin() {
     const parsed = JSON.parse(content);
     if (!parsed.mainChars) return false;
     const snap = JSON.stringify(parsed);
-    if (snap === lastSnapshot && lastSnapshot !== '') return false;
-    if (snap === JSON.stringify(db)) return false;
+    if (snap === lastSnapshot) return false;
     lastSnapshot = snap;
     db = parsed;
     if (!db.mainChars) db.mainChars = [];
@@ -299,17 +296,6 @@ async function loadFromBin() {
     return true;
   } catch(e) {
     console.warn('Gist load error:', e);
-    try {
-      const local = localStorage.getItem('chronicle_db');
-      if (local) {
-        db = JSON.parse(local);
-        if (!db.mainChars) db.mainChars = [];
-        if (!db.sideChars) db.sideChars = [];
-        if (!db.ideas)     db.ideas = [];
-        showSaveStatus('local');
-        return true;
-      }
-    } catch(le) {}
     return false;
   }
 }
@@ -320,9 +306,7 @@ async function saveToBin() {
   showSaveStatus('saving');
   const body = JSON.stringify(db, null, 2);
   lastSnapshot = body;
-
   try { localStorage.setItem('chronicle_db', body); } catch(e) {}
-
   try {
     const r = await fetch(GIST_URL, {
       method: 'PATCH',
@@ -331,12 +315,9 @@ async function saveToBin() {
         'Accept': 'application/vnd.github.v3+json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        files: { [GIST_FILE]: { content: body } }
-      })
+      body: JSON.stringify({ files: { [GIST_FILE]: { content: body } } })
     });
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    lastSnapshot = body;
     showSaveStatus('ok');
   } catch(e) {
     console.warn('Gist save error:', e);
@@ -348,9 +329,8 @@ async function saveToBin() {
 
 async function poll() {
   if (!saving) {
-    const snap = JSON.stringify(db);
     const changed = await loadFromBin();
-    if (changed && JSON.stringify(db) !== snap) renderAll();
+    if (changed) renderAll();
   }
   setTimeout(poll, 5000);
 }
