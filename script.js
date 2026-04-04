@@ -1040,34 +1040,19 @@ function createAdminBadge() {
 // INIT
 // ─────────────────────────────────────────
 async function init() {
-  // Только у админа (есть токен) — берём localStorage как быстрый старт
-  try {
-    if (getToken()) {
-      const local = localStorage.getItem('chronicle_db');
-      if (local) {
-        const parsed = JSON.parse(local);
-        if (parsed.mainChars && parsed.mainChars.length > 0) {
-          db = parsed;
-          if (!db.sideChars) db.sideChars = [];
-          if (!db.ideas) db.ideas = [];
-        }
-      }
-    }
-  } catch(e) {}
+  createAdminBadge();
 
-  // Если данных нет вообще — дефолты (первый запуск)
+  // Сначала грузим с Gist
+  const changed = await loadFromBin();
+  
+  // Если Gist пустой или не ответил — берём дефолты
   if (!db.mainChars || db.mainChars.length === 0) {
     db.mainChars = DEFAULT_MAIN_CHARS;
     db.sideChars = DEFAULT_SIDE_CHARS;
     db.ideas     = DEFAULT_IDEAS;
-    saveToBin();
+    await saveToBin();
   }
 
-  createAdminBadge();
   renderAll();
-
-  // Всегда грузим свежие данные с Gist и перерендериваем
-  loadFromBin().then(changed => { if (changed) renderAll(); });
-
   poll();
 }
