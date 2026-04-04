@@ -126,6 +126,35 @@ const JSONBIN_URL = 'https://api.jsonbin.io/v3/b/' + JSONBIN_ID;
   document.head.appendChild(s);
 })();
 
+function showSaveStatus(state) {
+  let el = document.getElementById('save-status');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'save-status';
+    Object.assign(el.style, {
+      position: 'fixed', bottom: '24px', left: '24px',
+      fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase',
+      padding: '6px 14px', borderRadius: '20px', zIndex: '9999',
+      transition: 'opacity 0.4s', fontFamily: 'Jost, sans-serif'
+    });
+    document.body.appendChild(el);
+  }
+  const states = {
+    saving: { text: '⟳ Сохранение…', bg: '#1A1A35', color: '#C8A96E' },
+    ok:     { text: '✓ Сохранено',   bg: '#0F2A1A', color: '#7AE0AB' },
+    local:  { text: '⚠ Только локально', bg: '#2A1A0F', color: '#E0AB7A' },
+  };
+  const s = states[state] || states.ok;
+  el.textContent = s.text;
+  el.style.background = s.bg;
+  el.style.color = s.color;
+  el.style.opacity = '1';
+  if (state !== 'saving') {
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.style.opacity = '0'; }, 2500);
+  }
+}
+
 // ─────────────────────────────────────────
 // DEFAULT DATA
 // ─────────────────────────────────────────
@@ -244,7 +273,10 @@ let currentChronicleId = null;
 // ─────────────────────────────────────────
 async function loadFromBin() {
   try {
-    const r = await fetch(JSONBIN_URL + '/latest', { headers: { 'X-Master-Key': JSONBIN_KEY } });
+    const r = await fetch(JSONBIN_URL + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
     const j = await r.json();
     if (!j.record || j.record.__empty) return false;
     const snap = JSON.stringify(j.record);
@@ -255,22 +287,50 @@ async function loadFromBin() {
     if (!db.sideChars) db.sideChars = [];
     if (!db.ideas)     db.ideas = [];
     return true;
-  } catch(e) { console.warn('load error', e); return false; }
+  } catch(e) {
+    console.warn('JSONbin load error:', e);
+    try {
+      const local = localStorage.getItem('chronicle_db');
+      if (local) {
+        db = JSON.parse(local);
+        if (!db.mainChars) db.mainChars = [];
+        if (!db.sideChars) db.sideChars = [];
+        if (!db.ideas)     db.ideas = [];
+        showSaveStatus('local');
+        return true;
+      }
+    } catch(le) {}
+    return false;
+  }
 }
 
 async function saveToBin() {
   if (saving) return;
   saving = true;
+  showSaveStatus('saving');
+  const body = JSON.stringify(db);
+
+  // Всегда сохраняем локально — это резервная копия
+  try { localStorage.setItem('chronicle_db', body); } catch(e) {}
+
   try {
-    const body = JSON.stringify(db);
-    await fetch(JSONBIN_URL, {
-      method:'PUT',
-      headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},
+    const r = await fetch(JSONBIN_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_KEY
+      },
       body
     });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
     lastSnapshot = body;
-  } catch(e) { console.warn('save error', e); }
-  saving = false;
+    showSaveStatus('ok');
+  } catch(e) {
+    console.warn('JSONbin save error:', e);
+    showSaveStatus('local'); // сохранено только локально
+  } finally {
+    saving = false;
+  }
 }
 
 async function poll() {
@@ -982,7 +1042,7 @@ function createAdminBadge() {
   const badge = document.createElement('div');
   badge.className = 'admin-badge off';
   badge.id = 'admin-badge';
-  badge.textContent = '✏️ ';
+  badge.textContent = '✏️';
   badge.addEventListener('click', toggleAdmin);
   document.body.appendChild(badge);
 }
@@ -991,15 +1051,28 @@ function createAdminBadge() {
 // INIT
 // ─────────────────────────────────────────
 async function init() {
-  await loadFromBin();
-  if (!db.mainChars || db.mainChars.length === 0) {
-    db.mainChars = DEFAULT_MAIN_CHARS;
-    db.sideChars = DEFAULT_SIDE_CHARS;
-    db.ideas     = DEFAULT_IDEAS;
-    await saveToBin();
+  const loaded = await loadFromBin();
+  if (!loaded || !db.mainChars || db.mainChars.length === 0) {
+    // Пробуем localStorage ещё раз напрямую
+    try {
+      const local = localStorage.getItem('chronicle_db');
+      if (local) {
+        const parsed = JSON.parse(local);
+        if (parsed.mainChars && parsed.mainChars.length > 0) {
+          db = parsed;
+        }
+      }
+    } catch(e) {}
+
+    // Если всё равно пусто — дефолты
+    if (!db.mainChars || db.mainChars.length === 0) {
+      db.mainChars = DEFAULT_MAIN_CHARS;
+      db.sideChars = DEFAULT_SIDE_CHARS;
+      db.ideas     = DEFAULT_IDEAS;
+      await saveToBin();
+    }
   }
   createAdminBadge();
   renderAll();
   poll();
 }
-init();
