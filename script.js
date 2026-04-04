@@ -290,6 +290,7 @@ async function loadFromBin() {
     if (!parsed.mainChars) return false;
     const snap = JSON.stringify(parsed);
     if (snap === lastSnapshot && lastSnapshot !== '') return false;
+    if (snap === JSON.stringify(db)) return false;
     lastSnapshot = snap;
     db = parsed;
     if (!db.mainChars) db.mainChars = [];
@@ -347,8 +348,9 @@ async function saveToBin() {
 
 async function poll() {
   if (!saving) {
+    const snap = JSON.stringify(db);
     const changed = await loadFromBin();
-    if (changed) renderAll();
+    if (changed && JSON.stringify(db) !== snap) renderAll();
   }
   setTimeout(poll, 5000);
 }
