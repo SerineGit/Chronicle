@@ -380,7 +380,12 @@ function renderMainChars() {
     card.className = 'char-card';
     card.style.position = 'relative';
     card.innerHTML = `
-      <div class="char-card-img-wrap"><div class="char-card-img-placeholder">аватарка · ${esc(ch.name)}</div></div>
+      <div class="char-card-img-wrap">
+  ${ch.photo
+    ? `<img class="char-card-img" src="${esc(ch.photo)}" alt="${esc(ch.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+    : ''}
+  <div class="char-card-img-placeholder" style="${ch.photo ? 'display:none' : ''}">аватарка · ${esc(ch.name)}</div>
+</div>
       <div class="char-card-overlay"></div>
       <div class="char-card-hint">→</div>
       <div class="char-card-bar">
@@ -498,8 +503,9 @@ function hideConnections() { document.getElementById('connections-svg').querySel
 // ─────────────────────────────────────────
 function openBio(id) {
   const ch = getChar(id); if (!ch) return;
-  document.getElementById('bio-img-col').innerHTML =
-    `<div class="bio-modal-img-placeholder">ФОТО · ${esc(ch.name)}<br><br><span style="font-size:10px;opacity:0.5">src: ССЫЛКА_НА_ФОТО</span></div>`;
+ document.getElementById('bio-img-col').innerHTML = ch.photo
+  ? `<img class="bio-modal-img" src="${esc(ch.photo)}" alt="${esc(ch.name)}" onerror="this.outerHTML='<div class=bio-modal-img-placeholder>Фото не загрузилось</div>'">`
+  : `<div class="bio-modal-img-placeholder">ФОТО · ${esc(ch.name)}</div>`;
   document.getElementById('bio-accent').style.background = ch.color;
   document.getElementById('bio-name').textContent = ch.fullName || ch.name;
   document.getElementById('bio-name').style.color = ch.color;
@@ -699,6 +705,11 @@ function getOrCreateCharModal() {
           <div class="form-group"><label class="form-label">Цвет</label><input class="form-input" id="cf-color" type="color" style="height:44px;padding:4px;cursor:pointer;"></div>
         </div>
         <div class="form-group">
+          <label class="form-label">Ссылка на фото</label>
+          <input class="form-input" id="cf-photo" type="text" placeholder="https://i.imgur.com/…">
+          <div id="cf-photo-preview" style="margin-top:8px;"></div>
+        </div>
+        <div class="form-group">
           <label class="form-label">Статы</label>
           <div id="cf-stats-list"></div>
           <button type="button" class="btn-add" style="margin-top:6px;font-size:11px;padding:7px 12px;" id="cf-add-stat">+ Строка</button>
@@ -722,10 +733,16 @@ function getOrCreateCharModal() {
           <button class="btn-submit" id="cf-submit">Сохранить</button>
         </div>
       </div>`;
-    document.body.appendChild(m);
+  document.body.appendChild(m);
     document.getElementById('cf-add-stat').onclick = () => addStatRow();
     document.getElementById('cf-add-bio').onclick  = () => addBioRow();
     document.getElementById('cf-add-conn').onclick = () => addConnRow(null, null, _currentEditId);
+document.getElementById('cf-photo').addEventListener('input', function() {
+      const prev = document.getElementById('cf-photo-preview');
+      prev.innerHTML = this.value
+        ? `<img src="${this.value}" style="max-width:100%;max-height:120px;border-radius:4px;border:1px solid var(--dim);object-fit:cover;" onerror="this.style.display='none'">`
+        : '';
+    });
   }
   return m;
 }
@@ -775,6 +792,10 @@ function fillCharForm(ch) {
   document.getElementById('cf-initial').value  = ch ? (ch.initial||'') : '';
   document.getElementById('cf-color').value    = ch ? (ch.color||'#C8A96E') : '#C8A96E';
   document.getElementById('cf-secret').value   = ch ? (ch.secret||'') : '';
+  document.getElementById('cf-photo').value    = ch ? (ch.photo||'') : '';
+  document.getElementById('cf-photo-preview').innerHTML = (ch && ch.photo)
+    ? `<img src="${ch.photo}" style="max-width:100%;max-height:120px;border-radius:4px;border:1px solid var(--dim);object-fit:cover;">`
+    : '';
   document.getElementById('cf-stats-list').innerHTML = '';
   document.getElementById('cf-bio-list').innerHTML   = '';
   document.getElementById('cf-conn-list').innerHTML  = '';
@@ -800,6 +821,7 @@ function openEditCharForm(id) {
     ch.initial  = document.getElementById('cf-initial').value.trim() || name[0];
     ch.color    = document.getElementById('cf-color').value;
     ch.secret   = document.getElementById('cf-secret').value.trim();
+    ch.photo = document.getElementById('cf-photo').value.trim();
     ch.stats    = [...document.querySelectorAll('#cf-stats-list .conn-row')].map(r => [r.querySelector('.cf-stat-key').value.trim(), r.querySelector('.cf-stat-val').value.trim()]).filter(([k])=>k);
     ch.bio      = [...document.querySelectorAll('#cf-bio-list .cf-bio-para')].map(t=>t.value.trim()).filter(Boolean);
     ch.connections = [...document.querySelectorAll('#cf-conn-list .conn-row')].map(r => ({ target: r.querySelector('.cf-conn-target').value, label: r.querySelector('.cf-conn-label').value.trim() })).filter(c=>c.target);
@@ -826,6 +848,7 @@ function openAddCharForm(type) {
       initial: document.getElementById('cf-initial').value.trim() || name[0],
       color: document.getElementById('cf-color').value,
       secret: document.getElementById('cf-secret').value.trim(),
+      photo: document.getElementById('cf-photo').value.trim(),
       stats: [...document.querySelectorAll('#cf-stats-list .conn-row')].map(r => [r.querySelector('.cf-stat-key').value.trim(), r.querySelector('.cf-stat-val').value.trim()]).filter(([k])=>k),
       bio: [...document.querySelectorAll('#cf-bio-list .cf-bio-para')].map(t=>t.value.trim()).filter(Boolean),
       connections: [...document.querySelectorAll('#cf-conn-list .conn-row')].map(r => ({ target: r.querySelector('.cf-conn-target').value, label: r.querySelector('.cf-conn-label').value.trim() })).filter(c=>c.target),
