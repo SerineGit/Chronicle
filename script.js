@@ -1,4 +1,4 @@
-<script>
+
 // =============================================
 // ХРОНИКА · Новый Орлеан — Полный script.js v4
 // JSONBin + полная совместимость со старым кодом
@@ -228,4 +228,4 @@ window.closeAddIdeaForm = () => { document.getElementById('add-idea-modal').clas
 window.submitChronicle = submitChronicle;
 window.submitIdea = submitIdea;
 
-</script>
+
