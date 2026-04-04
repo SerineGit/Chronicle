@@ -318,6 +318,7 @@ async function saveToBin() {
   saving = true;
   showSaveStatus('saving');
   const body = JSON.stringify(db, null, 2);
+  lastSnapshot = body;
 
   try { localStorage.setItem('chronicle_db', body); } catch(e) {}
 
