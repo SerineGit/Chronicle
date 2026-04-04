@@ -277,9 +277,12 @@ let currentChronicleId = null;
 // ─────────────────────────────────────────
 async function loadFromBin() {
   try {
-    const headers = { 'Accept': 'application/vnd.github.v3+json' };
-    if (getToken()) headers['Authorization'] = 'token ' + getToken();
-    const r = await fetch(GIST_URL, { headers });
+    const r = await fetch(GIST_URL, {
+      headers: {
+        'Authorization': 'token ' + getToken(),
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const j = await r.json();
     const content = j.files[GIST_FILE]?.content;
@@ -288,7 +291,6 @@ async function loadFromBin() {
     if (!parsed.mainChars) return false;
     const snap = JSON.stringify(parsed);
     if (snap === lastSnapshot) return false;
-    if (!parsed.mainChars || parsed.mainChars.length === 0) return false;
     lastSnapshot = snap;
     db = parsed;
     if (!db.mainChars) db.mainChars = [];
@@ -1041,18 +1043,13 @@ function createAdminBadge() {
 // ─────────────────────────────────────────
 async function init() {
   createAdminBadge();
-
-  // Сначала грузим с Gist
   const changed = await loadFromBin();
-  
-  // Если Gist пустой или не ответил — берём дефолты
   if (!db.mainChars || db.mainChars.length === 0) {
     db.mainChars = DEFAULT_MAIN_CHARS;
     db.sideChars = DEFAULT_SIDE_CHARS;
     db.ideas     = DEFAULT_IDEAS;
     await saveToBin();
   }
-
   renderAll();
   poll();
 }
