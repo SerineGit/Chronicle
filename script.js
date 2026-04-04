@@ -277,9 +277,9 @@ let currentChronicleId = null;
 // ─────────────────────────────────────────
 async function loadFromBin() {
   try {
-    const r = await fetch(GIST_URL, {
-      headers: { 'Accept': 'application/vnd.github.v3+json' }
-    });
+    const headers = { 'Accept': 'application/vnd.github.v3+json' };
+    if (getToken()) headers['Authorization'] = 'token ' + getToken();
+    const r = await fetch(GIST_URL, { headers });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const j = await r.json();
     const content = j.files[GIST_FILE]?.content;
