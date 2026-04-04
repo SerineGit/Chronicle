@@ -288,6 +288,7 @@ async function loadFromBin() {
     if (!parsed.mainChars) return false;
     const snap = JSON.stringify(parsed);
     if (snap === lastSnapshot) return false;
+    if (!parsed.mainChars || parsed.mainChars.length === 0) return false;
     lastSnapshot = snap;
     db = parsed;
     if (!db.mainChars) db.mainChars = [];
@@ -1055,10 +1056,11 @@ async function init() {
   } catch(e) {}
 
   // Если данных нет вообще — дефолты (первый запуск)
-  if (!db.mainChars || db.mainChars.length === 0) {
+if (!db.mainChars || db.mainChars.length === 0) {
     db.mainChars = DEFAULT_MAIN_CHARS;
     db.sideChars = DEFAULT_SIDE_CHARS;
     db.ideas     = DEFAULT_IDEAS;
+    saveToBin();
   }
 
   createAdminBadge();
