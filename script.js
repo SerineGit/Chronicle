@@ -1056,7 +1056,7 @@ async function init() {
   } catch(e) {}
 
   // Если данных нет вообще — дефолты (первый запуск)
-if (!db.mainChars || db.mainChars.length === 0) {
+  if (!db.mainChars || db.mainChars.length === 0) {
     db.mainChars = DEFAULT_MAIN_CHARS;
     db.sideChars = DEFAULT_SIDE_CHARS;
     db.ideas     = DEFAULT_IDEAS;
