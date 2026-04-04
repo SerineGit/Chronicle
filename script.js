@@ -289,7 +289,7 @@ async function loadFromBin() {
     const parsed = JSON.parse(content);
     if (!parsed.mainChars) return false;
     const snap = JSON.stringify(parsed);
-    if (snap === lastSnapshot) return false;
+    if (snap === lastSnapshot && lastSnapshot !== '') return false;
     lastSnapshot = snap;
     db = parsed;
     if (!db.mainChars) db.mainChars = [];
