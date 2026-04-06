@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────
-// GIST CONFIG
+// GIST CONFIG 
 // ─────────────────────────────────────────
 const GIST_ID    = 'c33bff3357d1eb0633e00d7c30f5eb92';
 const GIST_FILE  = 'chronicle_db.json';
