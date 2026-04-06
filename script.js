@@ -1052,6 +1052,7 @@ document.addEventListener('keydown', e => {
 // ADMIN BADGE
 // ─────────────────────────────────────────
 function createAdminBadge() {
+  if (!getToken()) return; // нет токена — кнопка не создаётся
   const badge = document.createElement('div');
   badge.className = 'admin-badge off';
   badge.id = 'admin-badge';
@@ -1059,12 +1060,15 @@ function createAdminBadge() {
   badge.addEventListener('click', toggleAdmin);
   document.body.appendChild(badge);
 }
-
 // ─────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────
 async function init() {
   createAdminBadge();
+  if (!getToken()) {
+    const adminBtn = document.getElementById('admin-btn');
+    if (adminBtn) adminBtn.style.display = 'none';
+  }
   await loadFromBin();
   if (!db.mainChars || db.mainChars.length === 0) {
     db.mainChars = DEFAULT_MAIN_CHARS;
