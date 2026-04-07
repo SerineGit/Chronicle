@@ -52,55 +52,13 @@
     </defs>
   </svg>
 
-  <div class="connections-grid">
-    <div class="conn-block conn-elio" id="conn-elio" onmouseenter="showConnections('elio')" onmouseleave="hideConnections()" onclick="openCharChronicle('elio')">
-      <div class="conn-avatar-wrap" style="border-color:#7AB3E0;"><div class="conn-avatar-placeholder">Э</div></div>
-      <div><div class="conn-name" style="color:#7AB3E0;">Элио Лаксфорд</div><div class="conn-role">Владелец LUX</div></div>
-    </div>
-    <div class="conn-block conn-chelsea" id="conn-chelsea" onmouseenter="showConnections('chelsea')" onmouseleave="hideConnections()" onclick="openCharChronicle('chelsea')">
-      <div class="conn-avatar-wrap" style="border-color:#E07AB3;"><div class="conn-avatar-placeholder">Ч</div></div>
-      <div><div class="conn-name" style="color:#E07AB3;">Челси Хилл</div><div class="conn-role">Актриса</div></div>
-    </div>
-    <div class="conn-block conn-miles" id="conn-miles" onmouseenter="showConnections('miles')" onmouseleave="hideConnections()" onclick="openCharChronicle('miles')">
-      <div class="conn-avatar-wrap" style="border-color:#7AE0AB;"><div class="conn-avatar-placeholder">М</div></div>
-      <div><div class="conn-name" style="color:#7AE0AB;">Майлз Милошевич</div><div class="conn-role">Нейрохирург</div></div>
-    </div>
-    <div class="conn-block conn-celine" id="conn-celine" onmouseenter="showConnections('celine')" onmouseleave="hideConnections()" onclick="openCharChronicle('celine')">
-      <div class="conn-avatar-wrap" style="border-color:#B37AE0;"><div class="conn-avatar-placeholder">С</div></div>
-      <div><div class="conn-name" style="color:#B37AE0;">Селин Деверо</div><div class="conn-role">Директор рехаба</div></div>
-    </div>
-  </div>
+  <div class="connections-grid" id="main-connections-grid"></div>
 
   <div class="small-spacer"></div>
   <div style="font-size:10px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;">Второстепенные</div>
-  <div class="side-chars-grid">
-    <div class="side-block" id="conn-linda" onmouseenter="showConnections('linda')" onmouseleave="hideConnections()" onclick="openCharChronicle('linda')">
-      <div class="side-avatar-wrap"><div class="side-avatar-placeholder">Л</div></div>
-      <div class="side-name">Линда Мартин</div>
-    </div>
-    <div class="side-block" id="conn-day" onmouseenter="showConnections('day')" onmouseleave="hideConnections()" onclick="openCharChronicle('day')">
-      <div class="side-avatar-wrap"><div class="side-avatar-placeholder">Д</div></div>
-      <div class="side-name">Дэй Бэнкс</div>
-    </div>
-    <div class="side-block" id="conn-bert" onmouseenter="showConnections('bert')" onmouseleave="hideConnections()" onclick="openCharChronicle('bert')">
-      <div class="side-avatar-wrap"><div class="side-avatar-placeholder">Б</div></div>
-      <div class="side-name">Берт Милтон</div>
-    </div>
-    <div class="side-block" id="conn-hugo" onmouseenter="showConnections('hugo')" onmouseleave="hideConnections()" onclick="openCharChronicle('hugo')">
-      <div class="side-avatar-wrap"><div class="side-avatar-placeholder">Х</div></div>
-      <div class="side-name">Хьюго Йорк</div>
-    </div>
-    <div class="side-block" id="conn-mildi" onmouseenter="showConnections('mildi')" onmouseleave="hideConnections()" onclick="openCharChronicle('mildi')">
-      <div class="side-avatar-wrap"><div class="side-avatar-placeholder">М</div></div>
-      <div class="side-name">Милдред Смит</div>
-    </div>
-    <div class="side-block" id="conn-piper" onmouseenter="showConnections('piper')" onmouseleave="hideConnections()" onclick="openCharChronicle('piper')">
-      <div class="side-avatar-wrap"><div class="side-avatar-placeholder">П</div></div>
-      <div class="side-name">Piper Brandewin</div>
-    </div>
-  </div>
+  <div class="side-chars-grid" id="side-connections-grid"></div>
 </div>
-
+  
 <!-- CHAR CHRONICLE MODAL -->
 <div class="chronicle-modal" id="char-chronicle-modal">
   <div class="modal-backdrop-shared" onclick="closeCharChronicle()"></div>
