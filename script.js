@@ -436,7 +436,7 @@ function renderConnectionsGrid() {
         </div>`;
       div.addEventListener('mouseenter', () => showConnections(ch.id));
       div.addEventListener('mouseleave', hideConnections);
-      div.addEventListener('click', () => { if (!adminMode) openBio(ch.id); else openCharChronicle(ch.id); });
+      div.addEventListener('click', () => openCharChronicle(ch.id));
       mainGrid.appendChild(div);
     });
   }
