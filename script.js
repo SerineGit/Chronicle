@@ -410,20 +410,47 @@ function renderMainChars() {
   addCard.addEventListener('click', () => openAddCharForm('main'));
   grid.appendChild(addCard);
 }
+// ─────────────────────────────────────────
+// RENDER CONNECTIONS GRID (main + side)
+// ─────────────────────────────────────────
+function renderConnectionsGrid() {
+  // --- Главные персонажи ---
+  const mainGrid = document.getElementById('main-connections-grid');
+  if (mainGrid) {
+    mainGrid.innerHTML = '';
+    (db.mainChars || []).forEach(ch => {
+      const div = document.createElement('div');
+      div.className = 'conn-block';
+      div.id = 'conn-' + ch.id;
+      div.style.cssText = `--char-color: ${ch.color}`;
+      div.innerHTML = `
+        <div class="conn-avatar-wrap" style="border-color:${ch.color};">
+          ${ch.photo
+            ? `<img src="${esc(ch.photo)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="conn-avatar-placeholder" style="display:none;">${esc(ch.initial || ch.name[0])}</div>`
+            : `<div class="conn-avatar-placeholder">${esc(ch.initial || ch.name[0])}</div>`
+          }
+        </div>
+        <div>
+          <div class="conn-name" style="color:${ch.color};">${esc(ch.name)}</div>
+          <div class="conn-role">${esc((ch.role || '').split('·')[0].trim())}</div>
+        </div>`;
+      div.addEventListener('mouseenter', () => showConnections(ch.id));
+      div.addEventListener('mouseleave', hideConnections);
+      div.addEventListener('click', () => { if (!adminMode) openBio(ch.id); else openCharChronicle(ch.id); });
+      mainGrid.appendChild(div);
+    });
+  }
 
-// ─────────────────────────────────────────
-// RENDER SIDE CHARS
-// ─────────────────────────────────────────
-function renderSideChars() {
-  const grid = document.querySelector('.side-chars-grid');
-  if (!grid) return;
-  grid.innerHTML = '';
-  (db.sideChars||[]).forEach(ch => {
+  // --- Второстепенные персонажи ---
+  const sideGrid = document.getElementById('side-connections-grid');
+  if (!sideGrid) return;
+  sideGrid.innerHTML = '';
+  (db.sideChars || []).forEach(ch => {
     const div = document.createElement('div');
     div.className = 'side-block';
     div.id = 'conn-' + ch.id;
     div.innerHTML = `
-      <div class="side-avatar-wrap"><div class="side-avatar-placeholder">${esc(ch.initial||ch.name[0]||'?')}</div></div>
+      <div class="side-avatar-wrap"><div class="side-avatar-placeholder">${esc(ch.initial || ch.name[0] || '?')}</div></div>
       <div class="side-name">${esc(ch.name)}</div>
       <button class="edit-overlay-btn" title="Редактировать">✏️</button>
       <button class="delete-overlay-btn" title="Удалить">✕</button>
@@ -436,9 +463,10 @@ function renderSideChars() {
     });
     div.querySelector('.edit-overlay-btn').addEventListener('click', e => { e.stopPropagation(); openEditCharForm(ch.id); });
     div.querySelector('.delete-overlay-btn').addEventListener('click', e => { e.stopPropagation(); deleteChar(ch.id, 'side'); });
-    grid.appendChild(div);
+    sideGrid.appendChild(div);
   });
 
+  // Кнопка «Добавить» (второстепенный)
   const addDiv = document.createElement('div');
   addDiv.className = 'side-add-btn side-block';
   addDiv.innerHTML = `
@@ -447,19 +475,15 @@ function renderSideChars() {
     </div>
     <div class="side-name" style="color:var(--gold2);">Добавить</div>`;
   addDiv.addEventListener('click', () => openAddCharForm('side'));
-  grid.appendChild(addDiv);
-
-  (db.mainChars||[]).forEach(ch => {
-    const block = document.getElementById('conn-' + ch.id);
-    if (!block) return;
-    const nm = block.querySelector('.conn-name');
-    const rl = block.querySelector('.conn-role');
-    if (nm) nm.textContent = ch.name;
-    if (rl) rl.textContent = (ch.role||'').split('·')[0].trim();
-  });
+  sideGrid.appendChild(addDiv);
 
   updateChronicleSelect();
 }
+
+function renderSideChars() {
+  renderConnectionsGrid();
+}
+
 
 // ─────────────────────────────────────────
 // CONNECTIONS SVG
@@ -1032,12 +1056,11 @@ function toggleSpoiler(header) { header.parentElement.classList.toggle('open'); 
 // ─────────────────────────────────────────
 function renderAll() {
   renderMainChars();
-  renderSideChars();
+  renderConnectionsGrid();
   renderIdeas();
   updateChronicleSelect();
   if (currentChronicleId) renderChronicleEvents(currentChronicleId);
 }
-
 // ─────────────────────────────────────────
 // KEYBOARD
 // ─────────────────────────────────────────
